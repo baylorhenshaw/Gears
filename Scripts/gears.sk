@@ -16,10 +16,11 @@ options:
 	
 	# Gears Style Settings
 	color.1: &7
-	color.2: &e
-	color.3: &6
+	color.2: &b
+	color.3: &3
 
 	# Other
+	check.version: 12 hours
 	version: 1.0.0
 	storage: gears
 
@@ -127,7 +128,34 @@ on load:
 	else:
 		Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rLoaded {@color.2}Gears&r in with no detectable errors!")
 
-	register a new config with id "test" and with name "config" and with path "plugins/Testing/"
-	register a new option for config with id "test" named "example" and with default value "hello world!"
-	reload config "test"
-	broadcast config value "example" from "test"
+	# Version Checking
+	parse if plugin "Skent" is enabled:
+		Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rChecking for new versions...")
+		fetch url "https://raw.githubusercontent.com/Baezor1/Gears/main/version":
+			if "{@version}" is not fetched url content:
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rA new version of {@color.2}Gears&r is avaliable!")
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rDownload it at {@color.2}https://github.com/Baezor1/Gears/releases")
+				set {{@storage}::cache::newVer} to true
+			else:
+				delete {{@storage}::cache::newVer}
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rNo new version found.")
+
+# Version Checker
+every {@check.version}:
+	parse if plugin "Skent" is enabled:
+		Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rChecking for new versions...")
+		fetch url "https://raw.githubusercontent.com/Baezor1/Gears/main/version":
+			if "{@version}" is not fetched url content:
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rA new version of {@color.2}Gears&r is avaliable!")
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rDownload it at {@color.2}https://github.com/Baezor1/Gears/releases")
+				set {{@storage}::cache::newVer} to true
+			else:
+				delete {{@storage}::cache::newVer}
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rNo new version found.")
+
+# Join Event
+on join:
+	player has permission "gears.admin"
+	{{@storage}::cache::newVer} is true
+	wait 3 seconds
+	send formatted "{@color.2}A new version is avaliable for {@color.3}Amethyst{@color.2}! {@color.2}Click <link:https://github.com/Baezor1/Gears/releases>{@color.3}&nhere&r<reset> {@color.2}to download it!" to player
