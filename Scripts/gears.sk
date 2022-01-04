@@ -6,3 +6,12 @@
 #
 #	Written by Baezor (https://baezor.com/)
 #
+
+#
+#	Importing Stuff
+#
+
+# Import:
+import:
+	
+	org.bukkit.Bukkit
