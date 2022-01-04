@@ -40,11 +40,16 @@ expression [get] config value %string% from %string%:
 # Register Config
 effect register [a] [new] config with id %string% [and] [with] name %string% [and] [with] path %string%:
 	trigger:
+		set {_path} to expr-3
 		if expr-3 does not contain ".":
-			create shortcut for "%expr-1%%expr-2%.yml" as "%expr-1%"
+			set {_path::*} to {_path} split at ""
+			set {_path::*} to reversed {_path::*}
+			if {_path::1} is "/":
+				create shortcut for "%expr-1%%expr-2%.yml" as "%expr-1%"
+			else:
+				create shortcut for "%expr-1%/%expr-2%.yml" as "%expr-1%"
 		else:
 			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cFailed to register the config &4%expr-1%&c due to an incorrect path string!")
-			set {_path} to expr-3
 			set {_path::*} to {_path} split at "."
 
 			loop {_path::*}:
