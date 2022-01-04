@@ -16,8 +16,12 @@ options:
 	
 	# Gears Style Settings
 	color.1: &7
-	color.2: &b
-	color.3: &3
+	color.2: &e
+	color.3: &6
+
+	# Other
+	version: 1.0.0
+	storage: gears
 
 #
 #	Importing Stuff
@@ -35,7 +39,10 @@ import:
 # Get Config Option from Cache
 expression [get] config value %string% from %string%:
 	get:
-		return value expr-1 from expr-2
+		if {{@storage}::cache::configs::%expr-2%::nodes::%expr-1%::val} is set:
+			return {{@storage}::cache::configs::%expr-2%::nodes::%expr-1%::val}
+		else:
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cAttempted to get a config value that is not set! Is it not loaded?")
 
 # Register Config
 effect register [a] [new] config with id %string% [and] [with] name %string% [and] [with] path %string%:
@@ -43,13 +50,17 @@ effect register [a] [new] config with id %string% [and] [with] name %string% [an
 		set {_path} to expr-3
 		replace all "\" in {_path} with "/"
 		if expr-3 does not contain ".":
-			set {_path::*} to {_path} split at ""
-			set {_path::*} to reversed {_path::*}
-			if {_path::1} is "/":
-				create shortcut for "%expr-1%%expr-2%.yml" as "%expr-1%"
+			if {{@storage}::cache::configs::*} does not contain expr-1:
+				add expr-1 to {{@storage}::cache::configs::*}
+				set {_path::*} to {_path} split at ""
+				set {_path::*} to reversed {_path::*}
+				if {_path::1} is "/":
+					create shortcut for "%{_path}%%expr-2%.yml" as "%expr-1%"
+				else:
+					create shortcut for "%{_path}%/%expr-2%.yml" as "%expr-1%"
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rRegistered shortcut for the configuration file {@color.2}%expr-1%&r.")
 			else:
-				create shortcut for "%expr-1%/%expr-2%.yml" as "%expr-1%"
-			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rRegistered shortcut for the configuration file {@color.2}%expr-1%&r.")
+				Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cAttempted to register a config that already exists!")
 		else:
 			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cFailed to register the config &4%expr-1%&c due to an incorrect path string!")
 			set {_path::*} to {_path} split at "."
@@ -65,9 +76,31 @@ effect register [a] [new] config with id %string% [and] [with] name %string% [an
 # Register Value with defaults
 effect register [a] [new] option for [config] [with] [id] %string% named %string% [and] with default [value] %object%:
 	trigger:
-		if value expr-2 from expr-1 is not set:
-			set value expr-2 from expr-1 to expr-3
-			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rRepaired node {@color.2}%expr-2%&r from {@color.2}%expr-1%&r.")
+		if {{@storage}::cache::configs::*} contains expr-1:
+			if value expr-2 from expr-1 is not set:
+				set value expr-2 from expr-1 to expr-3
+				Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rRepaired node {@color.2}%expr-2%&r from {@color.2}%expr-1%&r.")
+		else:
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cAttempted to register an option to a non-existant config!")
+
+# Reload Config
+effect reload config [with] [id] %string%:
+	trigger:
+		if {{@storage}::cache::configs::*} contains expr-1:
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rReloading configuration cache for {@color.2}%expr-1%&r.")
+
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rDeleting old variables.")
+			delete {{@storage}::cache::configs::%expr-1%::nodes::*}
+
+			set {_nodes::*} to section "" of expr-1
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rDetected {@color.2}%amount of {_nodes::*}%&r nodes!")
+
+			loop {_nodes::*}:
+				set {{@storage}::cache::configs::%expr-1%::nodes::%loop-value%::val} to value loop-value from expr-1
+
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rFinished reloading configuration cache for {@color.2}%expr-1%&r.")
+		else:
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cAttempted to reload a config that does not exist!")
 
 #
 #	Events
@@ -76,6 +109,25 @@ effect register [a] [new] option for [config] [with] [id] %string% named %string
 # Load Event
 on load:
 	
+	Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rLoading in version {@color.2}{@version}&r of {@color.2}Gears&r written by {@color.2}Baezor&r.")
+
+	Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rDeleting previous cache.")
+	delete {{@storage}::cache::*}
+
+	set {_pl::*} to "skript-reflect", "skript-storage", "Skent"
+	loop {_pl::*}:
+		if plugin loop-value is not enabled:
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8]&c Could not find dependency &4%loop-value%&c!")
+			add 1 to {_error}
+		else:
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rFound dependency {@color.2}%loop-value%&r.")
+	
+	if {_error} > 1:
+		Bukkit.getLogger().severe("&8[{@color.3}Gears&8]&c Loaded in &4Gears&c with &4%{_errors}%&c errors!")
+	else:
+		Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rLoaded {@color.2}Gears&r in with no detectable errors!")
+
 	register a new config with id "test" and with name "config" and with path "plugins/Testing/"
 	register a new option for config with id "test" named "example" and with default value "hello world!"
+	reload config "test"
 	broadcast config value "example" from "test"
