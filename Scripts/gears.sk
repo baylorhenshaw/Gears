@@ -8,6 +8,18 @@
 #
 
 #
+#	Style Settings (I know this is a script that makes yml files lol)
+#
+
+# Options
+options:
+	
+	# Gears Style Settings
+	color.1: &7
+	color.2: &b
+	color.3: &3
+
+#
 #	Importing Stuff
 #
 
@@ -28,7 +40,10 @@ expression [get] config value %string% from %string%:
 # Register Config
 effect register [a] [new] config with id %string% [and] [with] name %string% [and] [with] path %string%:
 	trigger:
-		send "Placeholder" to console
+		if expr-3 does not contain ".":
+			create shortcut for "plugins/Test/config.yaml" as expr-1
+		else:
+			Bukkit.getLogger().severe(expr-1)
 
 # Register Value with defaults
 effect register [a] [new] option for [config] [with] [id] %string% named %string% [and] with default [value] %object%:
