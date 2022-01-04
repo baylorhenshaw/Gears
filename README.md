@@ -15,6 +15,11 @@ You can register a value with a valid config using the syntax below.
 ```
 register [a] [new] option for [config] [with] [id] %string% named %option% [and] with default [value] %object%
 ```
+### Reload Configuration
+Reload a config and delete the old cache.
+```
+reload config [with] [id] %string%
+```
 ### Get Configuration Value
 You can grab a configuration option from the cached variable by using the syntax below.
 ```
