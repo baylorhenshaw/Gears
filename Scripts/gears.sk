@@ -56,11 +56,20 @@ effect register [a] [new] config with id %string% [and] [with] name %string% [an
 				if {_str} is not set:
 					set {_str} to "&c%loop-value%"
 				else:
-					set {_str} to "%{_str}% &e---> &4. &e<---&c %loop-value%"
+					set {_str} to "%{_str}%&6->&e.&6<-&c%loop-value%"
 
-			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &8>> &c%{_str}% &8<<")
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &e>> &c%{_str}% &e<<")
 
 # Register Value with defaults
 effect register [a] [new] option for [config] [with] [id] %string% named %string% [and] with default [value] %object%:
 	trigger:
 		send "Placeholder" to console
+
+#
+#	Events
+#
+
+# Load Event
+on load:
+	
+	register a new config with id "test" and with name "config" and with path "plugins/Testing/config.yml"
