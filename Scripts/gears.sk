@@ -41,9 +41,19 @@ expression [get] config value %string% from %string%:
 effect register [a] [new] config with id %string% [and] [with] name %string% [and] [with] path %string%:
 	trigger:
 		if expr-3 does not contain ".":
-			create shortcut for "plugins/Test/config.yaml" as expr-1
+			create shortcut for "%expr-1%%expr-2%.yml" as "%expr-1%"
 		else:
-			Bukkit.getLogger().severe(expr-1)
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cFailed to register the config &4%expr-1%&c due to an incorrect path string!")
+			set {_path} to expr-3
+			set {_path::*} to {_path} split at "."
+
+			loop {_path::*}:
+				if {_str} is not set:
+					set {_str} to "&c%loop-value%"
+				else:
+					set {_str} to "%{_str}% &e---> &4. &e<---&c %loop-value%"
+
+			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &8>> &c%{_str}% &8<<")
 
 # Register Value with defaults
 effect register [a] [new] option for [config] [with] [id] %string% named %string% [and] with default [value] %object%:
