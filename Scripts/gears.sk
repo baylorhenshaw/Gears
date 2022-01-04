@@ -35,12 +35,13 @@ import:
 # Get Config Option from Cache
 expression [get] config value %string% from %string%:
 	get:
-		return "Placeholder"
+		return value expr-1 from expr-2
 
 # Register Config
 effect register [a] [new] config with id %string% [and] [with] name %string% [and] [with] path %string%:
 	trigger:
 		set {_path} to expr-3
+		replace all "\" in {_path} with "/"
 		if expr-3 does not contain ".":
 			set {_path::*} to {_path} split at ""
 			set {_path::*} to reversed {_path::*}
@@ -48,6 +49,7 @@ effect register [a] [new] config with id %string% [and] [with] name %string% [an
 				create shortcut for "%expr-1%%expr-2%.yml" as "%expr-1%"
 			else:
 				create shortcut for "%expr-1%/%expr-2%.yml" as "%expr-1%"
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rRegistered shortcut for the configuration file {@color.2}%expr-1%&r.")
 		else:
 			Bukkit.getLogger().severe("&8[{@color.3}Gears&8] &cFailed to register the config &4%expr-1%&c due to an incorrect path string!")
 			set {_path::*} to {_path} split at "."
@@ -63,7 +65,9 @@ effect register [a] [new] config with id %string% [and] [with] name %string% [an
 # Register Value with defaults
 effect register [a] [new] option for [config] [with] [id] %string% named %string% [and] with default [value] %object%:
 	trigger:
-		send "Placeholder" to console
+		if value expr-2 from expr-1 is not set:
+			set value expr-2 from expr-1 to expr-3
+			Bukkit.getLogger().info("&8[{@color.3}Gears&8] &rRepaired node {@color.2}%expr-2%&r from {@color.2}%expr-1%&r.")
 
 #
 #	Events
@@ -72,4 +76,6 @@ effect register [a] [new] option for [config] [with] [id] %string% named %string
 # Load Event
 on load:
 	
-	register a new config with id "test" and with name "config" and with path "plugins/Testing/config.yml"
+	register a new config with id "test" and with name "config" and with path "plugins/Testing/"
+	register a new option for config with id "test" named "example" and with default value "hello world!"
+	broadcast config value "example" from "test"
