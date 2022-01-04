@@ -4,6 +4,7 @@ Gears is a very simple script that allows you to create basic `config.yml` files
 - Skript 2.6+
 - skript-reflect
 - skript-storage
+- Skent (Version Checking)
 # Documentation
 ### Register Configuration
 You can easily register a configuration file using the syntax below.
