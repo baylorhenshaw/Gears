@@ -15,3 +15,22 @@
 import:
 	
 	org.bukkit.Bukkit
+
+#
+#	API
+#
+
+# Get Config Option from Cache
+expression [get] config value %string% from %string%:
+	get:
+		return "Placeholder"
+
+# Register Config
+effect register [a] [new] config with id %string% [and] [with] name %string% [and] [with] path %string%:
+	trigger:
+		send "Placeholder" to console
+
+# Register Value with defaults
+effect register [a] [new] option for [config] [with] [id] %string% named %string% [and] with default [value] %object%:
+	trigger:
+		send "Placeholder" to console
